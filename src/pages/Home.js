@@ -218,56 +218,7 @@ const Home = () => {
   return (
     <div>
       {/* Add CSS for animations */}
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% { 
-            transform: translateY(0px); 
-          }
-          50% { 
-            transform: translateY(-20px); 
-          }
-        }
 
-        @keyframes float-slow {
-          0%, 100% { 
-            transform: translateY(0px); 
-          }
-          50% { 
-            transform: translateY(-10px); 
-          }
-        }
-
-        @keyframes float-subtle {
-          0%, 100% { 
-            transform: translateY(0px); 
-          }
-          50% { 
-            transform: translateY(-5px); 
-          }
-        }
-
-        .floating-card {
-          animation: float 6s ease-in-out infinite;
-        }
-
-        .course-card {
-          animation: float-slow 8s ease-in-out infinite;
-        }
-
-        .feature-card {
-          animation: float-subtle 10s ease-in-out infinite;
-        }
-
-        .glass-card:hover {
-          animation-play-state: paused;
-          transform: translateY(-10px) scale(1.02);
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-        }
-
-        .floating-card:hover {
-          transform: translateY(-15px) rotate(var(--rotation, 0deg)) scale(1.05);
-        }
-      `}</style>
 
       {/* Hero Section */}
       <section style={{ padding: '80px 0' }}>

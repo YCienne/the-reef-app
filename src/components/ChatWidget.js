@@ -157,31 +157,7 @@ const ChatWidget = () => {
                 </button>
             )}
 
-            <style jsx>{`
-        .typing-indicator {
-          display: flex;
-          gap: 5px;
-        }
-        .typing-indicator span {
-          width: 6px;
-          height: 6px;
-          background: var(--text-light);
-          border-radius: 50%;
-          animation: typing 1s infinite;
-        }
-        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
-        
-        @keyframes typing {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-5px); }
-        }
-        
-        @keyframes bounce {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
-        }
-      `}</style>
+
         </div>
     );
 };

@@ -1,0 +1,39 @@
+[debug] [2026-02-23T04:03:51.532Z] ----------------------------------------------------------------------
+[debug] [2026-02-23T04:03:51.556Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\EBD TEST\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js hosting:sites:list
+[debug] [2026-02-23T04:03:51.557Z] CLI Version:   14.22.0
+[debug] [2026-02-23T04:03:51.557Z] Platform:      win32
+[debug] [2026-02-23T04:03:51.557Z] Node Version:  v24.13.0
+[debug] [2026-02-23T04:03:51.557Z] Time:          Mon Feb 23 2026 04:03:51 GMT+0000 (Greenwich Mean Time)
+[debug] [2026-02-23T04:03:51.558Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-02-23T04:03:51.761Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-02-23T04:03:51.762Z] > authorizing via signed-in user (samuelacquatey@gmail.com)
+[debug] [2026-02-23T04:03:51.762Z] [iam] checking project doit-89cb3 for permissions ["firebase.projects.get","firebasehosting.sites.get"]
+[debug] [2026-02-23T04:03:51.763Z] Checked if tokens are valid: true, expires at: 1771821553665
+[debug] [2026-02-23T04:03:51.763Z] Checked if tokens are valid: true, expires at: 1771821553665
+[debug] [2026-02-23T04:03:51.764Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/doit-89cb3:testIamPermissions [none]
+[debug] [2026-02-23T04:03:51.764Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/doit-89cb3:testIamPermissions x-goog-quota-user=projects/doit-89cb3
+[debug] [2026-02-23T04:03:51.764Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/doit-89cb3:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.get"]}
+[debug] [2026-02-23T04:04:04.078Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/doit-89cb3:testIamPermissions 200
+[debug] [2026-02-23T04:04:04.078Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/doit-89cb3:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.get"]}
+[debug] [2026-02-23T04:04:04.079Z] Checked if tokens are valid: true, expires at: 1771821553665
+[debug] [2026-02-23T04:04:04.079Z] Checked if tokens are valid: true, expires at: 1771821553665
+[debug] [2026-02-23T04:04:04.079Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/doit-89cb3/sites pageToken=&pageSize=10
+[debug] [2026-02-23T04:04:06.470Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/doit-89cb3/sites 200
+[debug] [2026-02-23T04:04:06.471Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/doit-89cb3/sites {"sites":[{"name":"projects/doit-89cb3/sites/doit-89cb3","defaultUrl":"https://doit-89cb3.web.app","type":"DEFAULT_SITE"},{"name":"projects/doit-89cb3/sites/the-reef","defaultUrl":"https://the-reef.web.app","appId":"1:544344733027:web:cbcf796cd4cdb40f9a4f56","type":"USER_SITE"}]}
+[info] 
+[info] Sites for project doit-89cb3
+[info] 
+[info] ┌────────────┬────────────────────────────┬───────────────────────────────────────────┐
+│ Site ID    │ Default URL                │ App ID (if set)                           │
+├────────────┼────────────────────────────┼───────────────────────────────────────────┤
+│ doit-89cb3 │ https://doit-89cb3.web.app │ --                                        │
+├────────────┼────────────────────────────┼───────────────────────────────────────────┤
+│ the-reef   │ https://the-reef.web.app   │ 1:544344733027:web:cbcf796cd4cdb40f9a4f56 │
+└────────────┴────────────────────────────┴───────────────────────────────────────────┘
+[debug] [2026-02-23T04:04:12.695Z] Error: Timed out.
+    at Timeout._onTimeout (C:\Users\EBD TEST\AppData\Roaming\npm\node_modules\firebase-tools\lib\utils.js:275:49)
+    at listOnTimeout (node:internal/timers:605:17)
+    at process.processTimers (node:internal/timers:541:7)
+[error] 
+[error] Error: An unexpected error has occurred.

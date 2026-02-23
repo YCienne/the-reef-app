@@ -1,14 +1,19 @@
 // src/pages/CourseDetail.jsx
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Clock, User, Star, Play, ShoppingCart, Heart, Check, BookOpen } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import axios from 'axios';
 
 const CourseDetail = () => {
   const { id } = useParams();
+  const { currentUser } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [enrollLoading, setEnrollLoading] = useState(false);
   const [expandedModules, setExpandedModules] = useState({});
 
   useEffect(() => {
@@ -38,11 +43,35 @@ const CourseDetail = () => {
     }));
   };
 
+  const handleEnroll = async () => {
+    if (!currentUser) {
+      navigate('/login', { state: { from: `/course/${id}` } });
+      return;
+    }
+
+    try {
+      setEnrollLoading(true);
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+      await axios.post(`${apiUrl}/api/users/enroll`, {
+        userId: currentUser.uid,
+        courseId: id
+      });
+      // Redirect to dashboard after successful enrollment
+      navigate('/dashboard');
+    } catch (err) {
+      console.error("Enrollment failed:", err);
+      alert("Failed to enroll. Please try again.");
+    } finally {
+      setEnrollLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div style={{ padding: '40px 0' }}>
         <div className="container" style={{ textAlign: 'center', padding: '60px 20px' }}>
-          <div style={{ fontSize: '18px', color: 'var(--text-light)' }}>Loading course...</div>
+          <div className="spinner"></div>
+          <div style={{ fontSize: '18px', color: 'var(--text-light)', marginTop: '20px' }}>Loading course...</div>
         </div>
       </div>
     );
@@ -288,11 +317,16 @@ const CourseDetail = () => {
                 </li>
               </ul>
 
-              <Link to={`/learn/${course.id || course._id}/1`} className="btn btn-primary" style={{ marginBottom: '15px' }}>
+              <button
+                onClick={handleEnroll}
+                className="btn btn-primary"
+                style={{ width: '100%', marginBottom: '15px', justifyContent: 'center' }}
+                disabled={enrollLoading}
+              >
                 <ShoppingCart size={18} />
-                Enroll Now
-              </Link>
-              <button className="btn btn-secondary">
+                {enrollLoading ? 'Enrolling...' : 'Enroll Now'}
+              </button>
+              <button className="btn btn-secondary" style={{ width: '100%', justifyContent: 'center' }}>
                 <Heart size={18} />
                 Add to Wishlist
               </button>
