@@ -51,7 +51,7 @@ const CourseDetail = () => {
 
     try {
       setEnrollLoading(true);
-      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+      const apiUrl = process.env.REACT_APP_API_URL;
       await axios.post(`${apiUrl}/api/users/enroll`, {
         userId: currentUser.uid,
         courseId: id

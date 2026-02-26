@@ -2,16 +2,18 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserPlus, AlertCircle } from 'lucide-react';
+import axios from 'axios';
 
 const Signup = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [inviteCode, setInviteCode] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const { signup } = useAuth();
+    const { signup, setUserRole } = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -24,8 +26,27 @@ const Signup = () => {
         try {
             setError('');
             setLoading(true);
-            await signup(email, password, name);
-            navigate('/dashboard');
+            const userCredential = await signup(email, password, name);
+            const user = userCredential.user;
+
+            const apiUrl = process.env.REACT_APP_API_URL;
+            const res = await axios.post(`${apiUrl}/api/users/register`, {
+                uid: user.uid,
+                email: email,
+                name: name,
+                inviteCode: inviteCode
+            });
+
+            const assignedRole = res.data.role;
+
+            // Immediately set the context role to prevent redirection race condition
+            setUserRole(assignedRole);
+
+            if (assignedRole === 'admin') {
+                navigate('/admin');
+            } else {
+                navigate('/dashboard');
+            }
         } catch (err) {
             setError('Failed to create account: ' + err.message);
         } finally {
@@ -125,6 +146,21 @@ const Signup = () => {
                             }}
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
+                        />
+                    </div>
+                    <div style={{ marginBottom: '30px' }}>
+                        <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500' }}>Admin Invite Code (Optional)</label>
+                        <input
+                            type="text"
+                            placeholder="Enter code to sign up as admin"
+                            style={{
+                                width: '100%', padding: '12px', borderRadius: '8px',
+                                border: '1px solid var(--glass-border)',
+                                background: 'rgba(255, 255, 255, 0.5)',
+                                outline: 'none'
+                            }}
+                            value={inviteCode}
+                            onChange={(e) => setInviteCode(e.target.value)}
                         />
                     </div>
                     <button

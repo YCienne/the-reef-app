@@ -15,7 +15,7 @@ const Dashboard = () => {
             try {
                 if (!currentUser) return;
 
-                const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+                const apiUrl = process.env.REACT_APP_API_URL;
                 console.log("Fetching dashboard for:", currentUser.uid);
 
                 const response = await axios.get(`${apiUrl}/api/users/dashboard/${currentUser.uid}`);

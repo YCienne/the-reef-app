@@ -1,7 +1,7 @@
 // src/pages/CourseContent.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Play, Pause, StepBack, StepForward, Captions, Settings, Brain, FileText, Download, MessageCircle, Edit, Check, ChevronDown, ChevronUp, AlertCircle, XCircle } from 'lucide-react';
+import { Play, Brain, FileText, Download, MessageCircle, Check, ChevronDown, ChevronUp, AlertCircle, XCircle } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 
@@ -13,7 +13,7 @@ const CourseContent = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const [isPlaying, setIsPlaying] = useState(false);
+
   const [activeTab, setActiveTab] = useState('notes');
   const [aiExplanation, setAiExplanation] = useState('');
   const [isLoadingAI, setIsLoadingAI] = useState(false);
@@ -89,7 +89,7 @@ const CourseContent = () => {
 
     // Check for completion (90%)
     if (duration > 0 && (currentTime / duration) > 0.9 && !showNextOverlay) {
-      if (currentLesson && currentUser && !completedLessons.includes(currentLesson.id || currentLesson.title)) { // unique ID check ideally
+      if (currentLesson && currentUser && !completedLessons.includes(currentLesson.stableId)) {
         markLessonComplete();
       }
       setShowNextOverlay(true);
@@ -100,7 +100,7 @@ const CourseContent = () => {
     const video = e.target;
     // Check if user is trying to seek past what they've watched
     // Allow seeking if the lesson is already completed
-    const isLessonCompleted = currentLesson && completedLessons.some(id => id === (currentLesson.id || currentLesson.title)); // Simulating ID check
+    const isLessonCompleted = currentLesson && completedLessons.some(id => id === currentLesson.stableId);
 
     // Using a simplified check since we don't have stable IDs in the mock data, 
     // relying on "completedLessons" array which stores IDs. 
@@ -117,8 +117,7 @@ const CourseContent = () => {
     if (!currentLesson || !currentUser) return;
 
     // We need a stable ID. If lesson doesn't have one, we might use title or index?
-    // The backend expects `lessonId`. Let's assume content has IDs or use a composite.
-    const lessonIdentifier = currentLesson.id || currentLesson.title;
+    const lessonIdentifier = currentLesson.stableId;
 
     if (completedLessons.includes(lessonIdentifier)) return;
 
@@ -153,14 +152,7 @@ const CourseContent = () => {
     }, 1500);
   };
 
-  const getResourceIcon = (type) => {
-    switch (type) {
-      case 'pdf': return <FileText size={16} />;
-      case 'code': return <Download size={16} />;
-      case 'links': return <MessageCircle size={16} />;
-      default: return <FileText size={16} />;
-    }
-  };
+
 
   // --- Derived State for Current Lesson ---
   // Assuming lessonId is an index (1-based) or we find it. 
@@ -175,9 +167,13 @@ const CourseContent = () => {
   if (course && course.modules) {
     // Flatten lessons to find by global index if lessonId is a number
     let allLessons = [];
-    course.modules.forEach(m => {
-      m.lessons.forEach(l => {
-        allLessons.push({ ...l, moduleTitle: m.title });
+    course.modules.forEach((m, mIdx) => {
+      m.lessons.forEach((l, lIdx) => {
+        allLessons.push({
+          ...l,
+          moduleTitle: m.title,
+          stableId: l.id || `m${mIdx}-l${lIdx}`
+        });
       });
     });
 
@@ -232,6 +228,12 @@ const CourseContent = () => {
                       <iframe
                         src={currentLesson.videoUrl}
                         title="PDF Viewer"
+                        style={{ width: '100%', height: '100%', border: 'none', background: 'white' }}
+                      />
+                    ) : (currentLesson.type === 'ppt') ? (
+                      <iframe
+                        src={`https://docs.google.com/gview?url=${encodeURIComponent(currentLesson.videoUrl)}&embedded=true`}
+                        title="PowerPoint Viewer"
                         style={{ width: '100%', height: '100%', border: 'none', background: 'white' }}
                       />
                     ) : (currentLesson.type === 'slide') ? (
@@ -417,8 +419,9 @@ const CourseContent = () => {
                         globalIndex += lIdx + 1;
 
                         const isActive = currentLesson === lesson;
-                        // Determine if completed (using ID if available, else fallback to something else, assumes title or check logic)
-                        const isCompleted = completedLessons.includes(lesson.id || lesson.title);
+                        // Determine if completed
+                        const stableId = lesson.id || `m${mIdx}-l${lIdx}`;
+                        const isCompleted = completedLessons.includes(stableId);
 
                         return (
                           <li

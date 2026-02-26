@@ -1,15 +1,49 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Search, Bell, User, LogOut, LogIn } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Search, Bell, User, LogOut, LogIn, ChevronLeft } from 'lucide-react';
 import logo from '../crialogo.png';
 import { useAuth } from '../context/AuthContext';
 
 const Header = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const location = useLocation();
-  const { currentUser, logout } = useAuth();
+  const navigate = useNavigate();
+  const { currentUser, logout, isAdmin } = useAuth();
 
   const isActive = (path) => location.pathname === path;
+
+  const isLearningMode = location.pathname.startsWith('/learn/') || location.pathname.startsWith('/quiz/');
+
+  if (isLearningMode) {
+    return (
+      <header className="learning-header">
+        <div className="container">
+          <div className="header-content" style={{ justifyContent: 'space-between' }}>
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="btn-back"
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', fontWeight: '600' }}
+            >
+              <ChevronLeft size={20} />
+              Back to Dashboard
+            </button>
+
+            <Link to="/" className="logo">
+              <img src={logo} alt="Logo" style={{ width: '35px', height: 'auto' }} />
+              <span className="logo-main" style={{ fontSize: '16px' }}>The Reef</span>
+            </Link>
+
+            <div className="user-actions">
+              <span style={{ fontSize: '14px', fontWeight: '500', marginRight: '10px' }}>{currentUser?.displayName || 'User'}</span>
+              <button className="icon-btn" onClick={() => logout()} title="Logout">
+                <LogOut size={18} />
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header>
@@ -40,8 +74,7 @@ const Header = () => {
               {currentUser && (
                 <li><Link to="/dashboard" className={isActive('/dashboard') ? 'active' : ''}>Dashboard</Link></li>
               )}
-              <li><a href="#">Learning Paths</a></li>
-              {currentUser && (
+              {isAdmin && (
                 <li><Link to="/admin/upload" className={isActive('/admin/upload') ? 'active' : ''}>Admin</Link></li>
               )}
             </ul>

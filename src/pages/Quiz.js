@@ -23,7 +23,7 @@ const Quiz = () => {
     try {
       setLoading(true);
       // In production, use your actual API URL
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/the-reef/us-central1/api'}/api/quiz/${courseId}/${moduleId}`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/quiz/${courseId}/${moduleId}`);
 
       if (!response.ok) {
         throw new Error('Failed to load quiz');
@@ -72,7 +72,7 @@ const Quiz = () => {
         answerPayload[idx] = userAnswers[idx];
       });
 
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/the-reef/us-central1/api'}/api/quiz/${courseId}/${moduleId}/submit`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/quiz/${courseId}/${moduleId}/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ answers: answerPayload })

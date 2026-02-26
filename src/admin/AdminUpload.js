@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Upload, Plus, Trash, Save, FolderInput, FileVideo, FileText, Presentation, CheckCircle, AlertCircle } from 'lucide-react';
+import { Upload, Plus, FolderInput, FileVideo, FileText, Presentation, CheckCircle, AlertCircle } from 'lucide-react';
 
 const AdminUpload = () => {
     // Mode: 'manual' | 'bulk'
@@ -80,6 +80,10 @@ const AdminUpload = () => {
             alert('Please select a PDF file');
             return;
         }
+        if (currentLesson.type === 'ppt' && !currentLesson.file) {
+            alert('Please select a PowerPoint file');
+            return;
+        }
         if (currentLesson.type === 'slide' && !currentLesson.contentUrl) {
             alert('Please provide the slide embed URL');
             return;
@@ -132,6 +136,14 @@ const AdminUpload = () => {
                             duration: lesson.duration || '00:00',
                             videoUrl: fileUrl, // Reuse videoUrl field for file URL
                             type: 'pdf'
+                        };
+                    } else if (lesson.type === 'ppt' && lesson.file) {
+                        const fileUrl = await uploadFile(lesson.file);
+                        return {
+                            title: lesson.title,
+                            duration: lesson.duration || '00:00',
+                            videoUrl: fileUrl,
+                            type: 'ppt'
                         };
                     } else if (lesson.type === 'slide' && lesson.contentUrl) {
                         return {
@@ -204,8 +216,17 @@ const AdminUpload = () => {
             const moduleName = parts[1];
             const fileName = parts[parts.length - 1];
 
-            // Filter for video files only (basic check)
-            if (!fileName.match(/\.(mp4|mov|avi|mkv|webm)$/i)) return;
+            // Filter for supported files
+            let type = '';
+            if (fileName.match(/\.(mp4|mov|avi|mkv|webm)$/i)) {
+                type = 'video';
+            } else if (fileName.match(/\.pdf$/i)) {
+                type = 'pdf';
+            } else if (fileName.match(/\.(ppt|pptx)$/i)) {
+                type = 'ppt';
+            }
+
+            if (!type) return;
 
             if (!modulesMap[moduleName]) {
                 modulesMap[moduleName] = [];
@@ -216,7 +237,8 @@ const AdminUpload = () => {
 
             modulesMap[moduleName].push({
                 title: lessonTitle,
-                path: file.webkitRelativePath
+                path: file.webkitRelativePath,
+                type: type
             });
         });
 
@@ -259,12 +281,13 @@ const AdminUpload = () => {
                         status: `Uploading: ${lesson.title}`
                     }));
 
-                    const videoUrl = await uploadFile(file);
+                    const fileUrl = await uploadFile(file);
 
                     return {
                         title: lesson.title,
-                        duration: '00:00', // We can't easily get duration without processing
-                        videoUrl: videoUrl
+                        duration: '00:00',
+                        videoUrl: fileUrl,
+                        type: lesson.type
                     };
                 }));
                 return { ...mod, lessons: processedLessons };
@@ -400,6 +423,7 @@ const AdminUpload = () => {
                                         >
                                             <option value="video">Video Lesson</option>
                                             <option value="pdf">PDF Document</option>
+                                            <option value="ppt">PowerPoint Presentation</option>
                                             <option value="slide">Google Slides</option>
                                         </select>
                                     </div>
@@ -420,6 +444,12 @@ const AdminUpload = () => {
                                             <>
                                                 <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px' }}>PDF File</label>
                                                 <input type="file" accept="application/pdf" onChange={handleFileChange} />
+                                            </>
+                                        )}
+                                        {currentLesson.type === 'ppt' && (
+                                            <>
+                                                <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px' }}>PowerPoint File</label>
+                                                <input type="file" accept=".ppt,.pptx,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation" onChange={handleFileChange} />
                                             </>
                                         )}
                                         {currentLesson.type === 'slide' && (
@@ -532,8 +562,11 @@ const AdminUpload = () => {
                                             <div style={{ padding: '0 15px' }}>
                                                 {mod.lessons.map((lesson, lIdx) => (
                                                     <div key={lIdx} style={{ padding: '10px 0', borderBottom: lIdx === mod.lessons.length - 1 ? 'none' : '1px solid #f9f9f9', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', color: '#666' }}>
-                                                        <FileVideo size={14} />
+                                                        {lesson.type === 'video' ? <FileVideo size={14} /> :
+                                                            lesson.type === 'pdf' ? <FileText size={14} /> :
+                                                                <Presentation size={14} />}
                                                         {lesson.title}
+                                                        <span style={{ fontSize: '10px', color: '#999', marginLeft: 'auto' }}>({lesson.type})</span>
                                                     </div>
                                                 ))}
                                             </div>

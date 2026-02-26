@@ -4,12 +4,13 @@ const admin = require('firebase-admin');
 const db = admin.firestore();
 
 // Middleware to ensure user is authenticated could be applied here
-// const { protect } = require('../middleware/authMiddleware');
+const { protect } = require('../middleware/authMiddleware');
 
 // Enroll User in a Course
-router.post('/enroll', async (req, res) => {
+router.post('/enroll', protect, async (req, res) => {
     try {
-        const { userId, courseId } = req.body;
+        const { courseId } = req.body;
+        const userId = req.user.uid;
 
         if (!userId || !courseId) {
             return res.status(400).json({ message: 'Missing userId or courseId' });
@@ -97,9 +98,10 @@ router.get('/dashboard/:userId', async (req, res) => {
 });
 
 // Update Progress (Mark Lesson Complete)
-router.post('/progress', async (req, res) => {
+router.post('/progress', protect, async (req, res) => {
     try {
-        const { userId, courseId, lessonId } = req.body;
+        const { courseId, lessonId } = req.body;
+        const userId = req.user.uid;
 
         if (!userId || !courseId || !lessonId) {
             return res.status(400).json({ message: 'Missing required fields' });
@@ -130,6 +132,61 @@ router.post('/progress', async (req, res) => {
     } catch (error) {
         console.error('Error updating progress:', error);
         res.status(500).json({ message: 'Server Error' });
+    }
+});
+
+// Get User Profile/Role
+router.get('/profile/:userId', async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const userDoc = await db.collection('users').doc(userId).get();
+
+        if (!userDoc.exists) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json(userDoc.data());
+    } catch (error) {
+        console.error('Error fetching user profile:', error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
+
+// Secure User Registration Route
+router.post('/register', async (req, res) => {
+    try {
+        const { uid, email, name, inviteCode } = req.body;
+
+        if (!uid || !email) {
+            return res.status(400).json({ message: 'Missing uid or email' });
+        }
+
+        // Determine role securely on the backend
+        const adminSecret = process.env.ADMIN_SECRET;
+        console.log(`[DEBUG] Backend Register - Received inviteCode: "${inviteCode}"`);
+        console.log(`[DEBUG] Backend Register - Env ADMIN_SECRET: "${adminSecret}"`);
+
+        const isAdmin = inviteCode === adminSecret;
+        console.log(`[DEBUG] Backend Register - isAdmin evaluated to: ${isAdmin}`);
+        const role = isAdmin ? 'admin' : 'student';
+
+        console.log(`[DEBUG] Backend Register - Attempting to create user doc for uid: ${uid}`);
+        // Use Admin SDK to bypass client security rules and create the document
+        await db.collection('users').doc(uid).set({
+            name: name || '',
+            email: email,
+            role: role,
+            createdAt: new Date().toISOString()
+        });
+
+        res.status(201).json({
+            message: 'User registered successfully',
+            role: role
+        });
+
+    } catch (error) {
+        console.error('Registration Error:', error);
+        res.status(500).json({ message: 'Server Error during registration' });
     }
 });
 
