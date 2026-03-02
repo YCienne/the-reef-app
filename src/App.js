@@ -10,19 +10,18 @@ import CourseDetail from './pages/CourseDetail';
 import CourseContent from './pages/CourseContent';
 import Quiz from './pages/Quiz';
 import AdminUpload from './admin/AdminUpload';
-import AdminDashboard from './admin/AdminDashboard';
 import AdminEditCourse from './admin/AdminEditCourse';
 import ChatWidget from './components/ChatWidget';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
-import Dashboard from './pages/Dashboard';
+import DashboardRouter from './pages/DashboardRouter';
 import './App.css';
 
 function MainApp() {
   const location = useLocation();
 
   // Paths where the footer should be hidden
-  const hideFooterPaths = ['/dashboard', '/admin', '/admin/upload'];
+  const hideFooterPaths = ['/dashboard', '/admin/upload'];
   const isLearnPath = location.pathname.startsWith('/learn/');
   const isQuizPath = location.pathname.startsWith('/quiz/');
   const isAdminEditPath = location.pathname.startsWith('/admin/edit/');
@@ -43,7 +42,7 @@ function MainApp() {
           {/* Protected Routes */}
           <Route path="/dashboard" element={
             <PrivateRoute>
-              <Dashboard />
+              <DashboardRouter />
             </PrivateRoute>
           } />
           <Route path="/learn/:courseId/:lessonId" element={
@@ -54,11 +53,6 @@ function MainApp() {
           <Route path="/quiz/:courseId/:moduleId" element={
             <PrivateRoute>
               <Quiz />
-            </PrivateRoute>
-          } />
-          <Route path="/admin" element={
-            <PrivateRoute requiredRole="admin">
-              <AdminDashboard />
             </PrivateRoute>
           } />
           <Route path="/admin/upload" element={

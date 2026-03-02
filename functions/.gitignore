@@ -1,2 +1,7 @@
 node_modules/
 npm-debug.log*
+.env
+firebase-debug.log
+firebase-debug.*.log
+.firebase
+.runtimeconfig.json

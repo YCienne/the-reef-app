@@ -42,11 +42,7 @@ const Signup = () => {
             // Immediately set the context role to prevent redirection race condition
             setUserRole(assignedRole);
 
-            if (assignedRole === 'admin') {
-                navigate('/admin');
-            } else {
-                navigate('/dashboard');
-            }
+            navigate('/dashboard');
         } catch (err) {
             setError('Failed to create account: ' + err.message);
         } finally {

@@ -62,7 +62,7 @@ const Header = () => {
               />
             </div>
             <div className="logo-text">
-              <span className="logo-main">Coral Reef Innovation</span>
+              <span className="logo-main">The Reef</span>
               <span className="logo-sub">Empowering tomorrow today</span>
             </div>
           </Link>
@@ -75,7 +75,7 @@ const Header = () => {
                 <li><Link to="/dashboard" className={isActive('/dashboard') ? 'active' : ''}>Dashboard</Link></li>
               )}
               {isAdmin && (
-                <li><Link to="/admin/upload" className={isActive('/admin/upload') ? 'active' : ''}>Admin</Link></li>
+                <li><Link to="/admin/upload" className={isActive('/admin/upload') ? 'active' : ''}>Create Course</Link></li>
               )}
             </ul>
           </nav>

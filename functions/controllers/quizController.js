@@ -143,7 +143,56 @@ const submitQuiz = async (req, res) => {
     }
 };
 
+// Create or Update quiz
+const upsertQuiz = async (req, res) => {
+    try {
+        const { courseId, moduleId } = req.params;
+        const { questions, title } = req.body;
+
+        if (!questions || !Array.isArray(questions)) {
+            return res.status(400).json({ success: false, message: 'Questions array is required' });
+        }
+
+        console.log(`Upserting quiz for Course: ${courseId}, Module: ${moduleId}`);
+
+        const quizzesRef = db.collection('quizzes');
+        const snapshot = await quizzesRef
+            .where('courseId', '==', courseId)
+            .where('moduleId', '==', moduleId)
+            .limit(1)
+            .get();
+
+        const quizData = {
+            courseId,
+            moduleId,
+            title: title || `Module ${moduleId} Assessment`,
+            questions,
+            updatedAt: new Date().toISOString()
+        };
+
+        if (snapshot.empty) {
+            // Create new
+            quizData.createdAt = new Date().toISOString();
+            const docRef = await quizzesRef.add(quizData);
+            res.json({ success: true, message: 'Quiz created', id: docRef.id });
+        } else {
+            // Update existing
+            const docId = snapshot.docs[0].id;
+            await quizzesRef.doc(docId).update(quizData);
+            res.json({ success: true, message: 'Quiz updated', id: docId });
+        }
+    } catch (error) {
+        console.error('Error upserting quiz:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to save quiz',
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     getQuiz,
-    submitQuiz
+    submitQuiz,
+    upsertQuiz
 };

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Upload, Plus, FolderInput, FileVideo, FileText, Presentation, CheckCircle, AlertCircle } from 'lucide-react';
+import { Upload, Plus, FolderInput, FileVideo, FileText, Presentation, CheckCircle, AlertCircle, Trash, Brain } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const AdminUpload = () => {
+    const { currentUser } = useAuth();
     // Mode: 'manual' | 'bulk'
     const [uploadMode, setUploadMode] = useState('manual');
 
@@ -18,8 +20,11 @@ const AdminUpload = () => {
         image: '', // URL or path
         modules: []
     });
-    const [currentModule, setCurrentModule] = useState({ title: '', lessons: [] });
+    const [currentModule, setCurrentModule] = useState({ title: '', lessons: [], quiz: null });
     const [currentLesson, setCurrentLesson] = useState({ title: '', duration: '', type: 'video', file: null, contentUrl: '' });
+    const [currentQuiz, setCurrentQuiz] = useState({ questions: [] });
+    const [newQuestion, setNewQuestion] = useState({ text: '', options: ['', '', '', ''], correctIndex: 0 });
+    const [showQuizEditor, setShowQuizEditor] = useState(false);
     const [imageFile, setImageFile] = useState(null);
 
     // Bulk Mode State
@@ -38,8 +43,12 @@ const AdminUpload = () => {
         const formData = new FormData();
         formData.append('file', file);
         try {
+            const token = await currentUser.getIdToken();
             const config = {
-                headers: { 'Content-Type': 'multipart/form-data' },
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${token}`
+                },
             };
             const { data } = await axios.post(`${process.env.REACT_APP_API_URL}/api/upload`, formData, config);
             return data;
@@ -105,7 +114,36 @@ const AdminUpload = () => {
             ...courseData,
             modules: [...courseData.modules, currentModule]
         });
-        setCurrentModule({ title: '', lessons: [] });
+        setCurrentModule({ title: '', lessons: [], quiz: null });
+        setCurrentQuiz({ questions: [] });
+        setShowQuizEditor(false);
+    };
+
+    const addQuestion = () => {
+        if (!newQuestion.text || newQuestion.options.some(opt => !opt)) {
+            alert('Please provide question text and all 4 options');
+            return;
+        }
+        setCurrentQuiz({
+            ...currentQuiz,
+            questions: [...currentQuiz.questions, { ...newQuestion }]
+        });
+        setNewQuestion({ text: '', options: ['', '', '', ''], correctIndex: 0 });
+    };
+
+    const removeQuestion = (index) => {
+        const updatedQuestions = [...currentQuiz.questions];
+        updatedQuestions.splice(index, 1);
+        setCurrentQuiz({ ...currentQuiz, questions: updatedQuestions });
+    };
+
+    const saveQuizToModule = () => {
+        if (currentQuiz.questions.length === 0) {
+            alert('Please add at least one question to the quiz');
+            return;
+        }
+        setCurrentModule({ ...currentModule, quiz: currentQuiz });
+        setShowQuizEditor(false);
     };
 
     const handleManualSubmit = async (e) => {
@@ -159,7 +197,20 @@ const AdminUpload = () => {
             }));
 
             const finalCourseData = { ...courseData, modules: modulesWithUploads, image: imageUrl };
-            await axios.post(`${process.env.REACT_APP_API_URL}/api/courses`, finalCourseData);
+            const token = await currentUser.getIdToken();
+            const { data: createdCourse } = await axios.post(`${process.env.REACT_APP_API_URL}/api/courses`, finalCourseData, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            // Upload Quizzes
+            const courseId = createdCourse.id;
+            await Promise.all(courseData.modules.map(async (mod, idx) => {
+                if (mod.quiz) {
+                    await axios.put(`${process.env.REACT_APP_API_URL}/api/quiz/${courseId}/${idx + 1}`, mod.quiz, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                }
+            }));
 
             setMessage('Course created successfully!');
             // Reset manual form
@@ -302,7 +353,10 @@ const AdminUpload = () => {
             };
 
             setBulkProgress({ current: 100, total: 100, status: 'Saving course data...' });
-            await axios.post(`${process.env.REACT_APP_API_URL}/api/courses`, finalCourseData);
+            const token = await currentUser.getIdToken();
+            await axios.post(`${process.env.REACT_APP_API_URL}/api/courses`, finalCourseData, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
 
             setMessage('Bulk Upload Successful! Course created.');
             setBulkCourseData(null);
@@ -318,7 +372,7 @@ const AdminUpload = () => {
     };
 
     return (
-        <div className="container" style={{ padding: '40px 0' }}>
+        <div className="container" style={{ padding: '40px 20px' }}>
             {/* Toggle Mode */}
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '30px' }}>
                 <div style={{ background: '#fff', padding: '5px', borderRadius: '30px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', display: 'flex' }}>
@@ -481,6 +535,90 @@ const AdminUpload = () => {
                                         </ul>
                                     )}
                                 </div>
+                                <div style={{ background: '#f9f9f9', padding: '15px', borderRadius: '5px', marginBottom: '15px' }}>
+                                    <h4 style={{ fontSize: '14px', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <Brain size={16} color="var(--accent)" />
+                                        Module Assessment (Quiz)
+                                    </h4>
+
+                                    {!showQuizEditor ? (
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowQuizEditor(true)}
+                                            className="btn btn-secondary"
+                                            style={{ fontSize: '12px', padding: '5px 10px' }}
+                                        >
+                                            {currentModule.quiz ? 'Edit Quiz' : 'Add Quiz to Module'}
+                                        </button>
+                                    ) : (
+                                        <div style={{ background: '#fff', padding: '15px', borderRadius: '8px', border: '1px solid #eee' }}>
+                                            <div style={{ marginBottom: '15px' }}>
+                                                <input
+                                                    placeholder="Question Text"
+                                                    value={newQuestion.text}
+                                                    onChange={(e) => setNewQuestion({ ...newQuestion, text: e.target.value })}
+                                                    style={{ width: '100%', padding: '10px', marginBottom: '10px' }}
+                                                />
+                                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                                                    {newQuestion.options.map((opt, idx) => (
+                                                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                            <input
+                                                                type="radio"
+                                                                name="correctOpt"
+                                                                checked={newQuestion.correctIndex === idx}
+                                                                onChange={() => setNewQuestion({ ...newQuestion, correctIndex: idx })}
+                                                            />
+                                                            <input
+                                                                placeholder={`Option ${idx + 1}`}
+                                                                value={opt}
+                                                                onChange={(e) => {
+                                                                    const newOpts = [...newQuestion.options];
+                                                                    newOpts[idx] = e.target.value;
+                                                                    setNewQuestion({ ...newQuestion, options: newOpts });
+                                                                }}
+                                                                style={{ flex: 1, padding: '8px' }}
+                                                            />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={addQuestion}
+                                                    className="btn btn-primary"
+                                                    style={{ marginTop: '10px', fontSize: '12px' }}
+                                                >
+                                                    <Plus size={12} /> Add Question
+                                                </button>
+                                            </div>
+
+                                            {currentQuiz.questions.length > 0 && (
+                                                <div style={{ marginTop: '15px', borderTop: '1px solid #eee', paddingTop: '10px' }}>
+                                                    <h5 style={{ fontSize: '12px', marginBottom: '10px' }}>Questions Preview ({currentQuiz.questions.length}):</h5>
+                                                    {currentQuiz.questions.map((q, idx) => (
+                                                        <div key={idx} style={{ fontSize: '11px', background: '#f0f4f8', padding: '8px', borderRadius: '4px', marginBottom: '5px', display: 'flex', justifyContent: 'space-between' }}>
+                                                            <span>{idx + 1}. {q.text}</span>
+                                                            <button type="button" onClick={() => removeQuestion(idx)} style={{ color: 'red', border: 'none', background: 'none', cursor: 'pointer' }}>
+                                                                <Trash size={12} />
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+                                                <button type="button" onClick={saveQuizToModule} className="btn btn-accent" style={{ fontSize: '12px' }}>Save Quiz</button>
+                                                <button type="button" onClick={() => setShowQuizEditor(false)} className="btn btn-secondary" style={{ fontSize: '12px' }}>Cancel</button>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {currentModule.quiz && !showQuizEditor && (
+                                        <div style={{ marginTop: '10px', fontSize: '12px', color: '#2e7d32', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                            <CheckCircle size={14} /> Quiz Added ({currentModule.quiz.questions.length} questions)
+                                        </div>
+                                    )}
+                                </div>
+
                                 <button type="button" onClick={addModule} className="btn btn-primary" style={{ marginTop: '15px' }}>
                                     Add Module to Course
                                 </button>

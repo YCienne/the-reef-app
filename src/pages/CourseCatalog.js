@@ -13,7 +13,14 @@ const CourseCatalog = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/courses`);
+        const apiUrl = `${process.env.REACT_APP_API_URL || ''}/api/courses`;
+        const response = await fetch(apiUrl);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`HTTP error! status: ${response.status}, body: ${errorText.substring(0, 200)}`);
+        }
+
         const data = await response.json();
 
         if (Array.isArray(data)) {

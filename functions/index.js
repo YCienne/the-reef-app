@@ -25,6 +25,7 @@ app.use((req, res, next) => {
     next();
 });
 
+// Import routes directly
 const paystackRoutes = require('./routes/paystackRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const courseRoutes = require('./routes/courseRoutes');
@@ -52,10 +53,12 @@ app.use('/api', apiRouter);
 app.use('/', apiRouter);
 
 // Export the Express app as a 2nd Gen Cloud Function called 'api'
+// Define BEFORE any module.exports or exports.app to ensure it's picked up
 exports.api = onRequest({
     timeoutSeconds: 300,
     memory: "512MiB",
     secrets: ["GEMINI_API_KEY", "PAYSTACK_SECRET_KEY", "PAYSTACK_PUBLIC_KEY", "FRONTEND_URL"]
 }, app);
 
-module.exports = { app };
+// For local dev via dev.js
+exports.app = app;
