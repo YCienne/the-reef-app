@@ -32,7 +32,7 @@ const Header = () => {
     return (
       <header className="learning-header">
         <div className="container">
-          <div className="header-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'nowrap', width: '100%' }}>
+          <div className="header-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'nowrap', width: '100%', flexDirection: 'row' }}>
             <button
               onClick={() => navigate('/dashboard')}
               className="btn-back"
