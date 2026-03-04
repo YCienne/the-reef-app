@@ -93,7 +93,10 @@ body {
 }
 
 /* Header Styles */
-header {
+header,
+.desktop-header,
+.mobile-header,
+.learning-header {
   padding: 20px 0;
   position: sticky;
   top: 0;
@@ -101,6 +104,11 @@ header {
   backdrop-filter: blur(10px);
   background: rgba(255, 255, 255, 0.8);
   border-bottom: 1px solid var(--glass-border);
+}
+
+.mobile-header,
+.learning-header {
+  padding: 0;
 }
 
 .header-content {
@@ -301,6 +309,59 @@ footer {
   border-top: 1px solid var(--glass-border);
   color: var(--text-light);
   font-size: 14px;
+}
+
+/* ============================================
+   MOBILE / LEARNING HEADER
+   ============================================ */
+.mobile-header .header-container,
+.learning-header .header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.header-section.left,
+.header-section.right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 48px;
+  justify-content: flex-start;
+}
+
+.header-section.right {
+  justify-content: flex-end;
+}
+
+.header-section.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 auto;
+  gap: 8px;
+}
+
+.title {
+  font-weight: bold;
+  font-size: 1.12rem;
+  color: #234b75;
+  white-space: nowrap;
+}
+
+@media (min-width: 769px) {
+  .mobile-header,
+  .learning-header { display: none !important; }
+}
+
+@media (max-width: 768px) {
+  .desktop-header { display: none !important; }
+  .mobile-header,
+  .learning-header { display: block; }
 }
 
 /* ============================================

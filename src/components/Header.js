@@ -13,9 +13,10 @@ const Header = () => {
 
   const isActive = (path) => location.pathname === path;
 
-  const isLearningMode = location.pathname.startsWith('/learn/') || location.pathname.startsWith('/quiz/');
+  const isLearningMode =
+    location.pathname.startsWith('/learn/') ||
+    location.pathname.startsWith('/quiz/');
 
-  // Get user initials for avatar
   const getInitials = (name) => {
     if (!name) return 'U';
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
@@ -30,31 +31,33 @@ const Header = () => {
 
   if (isLearningMode) {
     return (
-      <header className="learning-header">
-        <div className="container">
-          <div className="header-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'nowrap', width: '100%', flexDirection: 'row' }}>
+      <header className="learning-header mobile-header">
+        <div className="header-container">
+          <div className="header-section left">
             <button
-              onClick={() => navigate('/dashboard')}
-              className="btn-back"
-              style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', fontWeight: '600', flexShrink: 0 }}
+              className="icon-btn"
+              onClick={() => navigate(-1)}
+              aria-label="Back"
             >
-              <ChevronLeft size={20} />
-              <span className="back-label">Back</span>
+              <ChevronLeft size={22} />
             </button>
-
-            <Link to="/" className="logo" style={{ flexShrink: 0, margin: '0 auto' }}>
-              <img src={logo} alt="Logo" style={{ width: '35px', height: 'auto' }} />
-              <span className="logo-main" style={{ fontSize: '16px' }}>The Reef</span>
-            </Link>
-
-            <div className="user-actions" style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
-              <div className="mobile-avatar" title={currentUser?.displayName || 'User'}>
-                {getInitials(currentUser?.displayName)}
-              </div>
-              <button className="icon-btn" onClick={() => logout()} title="Logout">
-                <LogOut size={18} />
-              </button>
+          </div>
+          <div className="header-section center">
+            <img src={logo} alt="Logo" className="logo" style={{ width: '32px', height: '32px', borderRadius: '50%' }} />
+            <span className="title">The Reef</span>
+          </div>
+          <div className="header-section right">
+            <div className="mobile-avatar" title={currentUser?.displayName || 'User'}>
+              {getInitials(currentUser?.displayName)}
             </div>
+            <button
+              className="icon-btn"
+              onClick={() => logout()}
+              title="Logout"
+              aria-label="Logout"
+            >
+              <LogOut size={20} />
+            </button>
           </div>
         </div>
       </header>
@@ -63,7 +66,8 @@ const Header = () => {
 
   return (
     <>
-      <header>
+      {/* Desktop Header */}
+      <header className="desktop-header">
         <div className="container">
           <div className="header-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'nowrap', width: '100%' }}>
             {/* Logo */}
@@ -75,7 +79,6 @@ const Header = () => {
               />
               <span className="logo-main">The Reef</span>
             </Link>
-
 
             {/* Desktop Nav */}
             <nav className="desktop-nav">
@@ -123,23 +126,36 @@ const Header = () => {
                 )}
               </div>
             </div>
+          </div>
+        </div>
+      </header>
 
-            {/* Mobile Actions */}
-            <div className="mobile-header-right">
-              {currentUser ? (
-                <button className="icon-btn mobile-bell">
-                  <Bell size={18} />
-                </button>
-              ) : null}
-              <button
-                className="icon-btn hamburger-btn"
-                onClick={() => setMenuOpen(!menuOpen)}
-                aria-label="Toggle menu"
-              >
-                {menuOpen ? <X size={20} /> : <Menu size={20} />}
+      {/* Mobile Header */}
+      <header className="mobile-header">
+        <div className="header-container">
+          <div className="header-section left">
+            {currentUser ? (
+              <button className="icon-btn" aria-label="Notifications">
+                <Bell size={20} />
               </button>
-            </div>
-
+            ) : (
+              <div style={{ minWidth: '48px' }} />
+            )}
+          </div>
+          <div className="header-section center">
+            <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
+              <img src={logo} alt="Logo" style={{ width: '32px', height: '32px', borderRadius: '50%' }} />
+              <span className="title">The Reef</span>
+            </Link>
+          </div>
+          <div className="header-section right">
+            <button
+              className="icon-btn hamburger-btn"
+              onClick={() => setMenuOpen(!menuOpen)}
+              aria-label="Toggle menu"
+            >
+              {menuOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
           </div>
         </div>
       </header>
