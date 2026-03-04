@@ -231,11 +231,23 @@ const CourseContent = () => {
                         style={{ width: '100%', height: '100%', border: 'none', background: 'white' }}
                       />
                     ) : (currentLesson.type === 'ppt') ? (
-                      <iframe
-                        src={`https://docs.google.com/gview?url=${encodeURIComponent(currentLesson.videoUrl)}&embedded=true`}
-                        title="PowerPoint Viewer"
-                        style={{ width: '100%', height: '100%', border: 'none', background: 'white' }}
-                      />
+                      <>
+                        <iframe
+                          src={`https://docs.google.com/gview?url=${encodeURIComponent(currentLesson.videoUrl)}&embedded=true`}
+                          title="PowerPoint Viewer"
+                          style={{ width: '100%', height: '100%', border: 'none', background: 'white' }}
+                        />
+                        {/* Overlay to block Google Docs Viewer toolbar buttons (download/open) */}
+                        <div style={{
+                          position: 'absolute',
+                          top: 0,
+                          right: 0,
+                          width: '220px',
+                          height: '48px',
+                          zIndex: 10,
+                          cursor: 'default'
+                        }} />
+                      </>
                     ) : (currentLesson.type === 'slide') ? (
                       <iframe
                         src={currentLesson.videoUrl}

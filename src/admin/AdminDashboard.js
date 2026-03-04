@@ -23,7 +23,7 @@ const AdminDashboard = () => {
     const { currentUser } = useAuth();
     const [metrics, setMetrics] = useState({
         totalUsers: 0, totalStudents: 0, totalAdmins: 0,
-        totalCourses: 0, totalEnrollments: 0
+        totalCourses: 0, totalEnrollments: 0, activeLearnersCount: 0
     });
     const [courses, setCourses] = useState([]);
     const [enrollmentsPerCourse, setEnrollmentsPerCourse] = useState([]);
@@ -143,10 +143,10 @@ const AdminDashboard = () => {
 
             {/* Metrics Cards */}
             <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '30px' }}>
-                <MetricCard title="Total Learners" value={metrics.totalStudents} icon={GraduationCap} color="#2ecc71" />
+                <MetricCard title="Active Learners" value={metrics.activeLearnersCount ?? 0} icon={GraduationCap} color="#2ecc71" />
                 <MetricCard title="Total Courses" value={metrics.totalCourses} icon={BookOpen} color="#3498db" />
                 <MetricCard title="Staff / Admins" value={metrics.totalAdmins} icon={Users} color="#9b59b6" />
-                <MetricCard title="Enrollments" value={metrics.totalEnrollments} icon={ClipboardList} color="#e67e22" />
+                <MetricCard title="Total Enrollments" value={metrics.totalEnrollments} icon={ClipboardList} color="#e67e22" />
             </div>
 
             {/* Tab Navigation */}

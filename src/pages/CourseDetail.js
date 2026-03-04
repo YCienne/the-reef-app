@@ -287,11 +287,11 @@ const CourseDetail = () => {
 
               <div style={{ marginBottom: '25px' }}>
                 <div style={{ fontSize: '32px', fontWeight: '700', color: 'var(--primary)', marginBottom: '5px' }}>
-                  ${course.price}
+                  GHS {course.price}
                   {course.originalPrice && (
                     <>
                       <span style={{ fontSize: '18px', color: 'var(--text-light)', textDecoration: 'line-through', marginLeft: '10px' }}>
-                        ${course.originalPrice}
+                        GHS {course.originalPrice}
                       </span>
                       <span style={{ background: 'var(--accent)', color: 'white', padding: '3px 10px', borderRadius: '50px', fontSize: '12px', fontWeight: '600', marginLeft: '10px' }}>
                         {Math.round((1 - course.price / course.originalPrice) * 100)}% OFF

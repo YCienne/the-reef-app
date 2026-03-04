@@ -19,6 +19,24 @@ router.get('/', async (req, res) => {
     }
 });
 
+// Get enrollment counts for all courses
+router.get('/enrollment-counts', async (req, res) => {
+    try {
+        const snapshot = await db.collectionGroup('enrollments').get();
+        const counts = {};
+        snapshot.forEach(doc => {
+            const { courseId } = doc.data();
+            if (courseId) {
+                counts[courseId] = (counts[courseId] || 0) + 1;
+            }
+        });
+        res.json(counts);
+    } catch (error) {
+        console.error('Error fetching enrollment counts:', error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
+
 // Get single course
 router.get('/:id', async (req, res) => {
     try {

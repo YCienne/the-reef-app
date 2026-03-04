@@ -21,12 +21,20 @@ router.get('/metrics', async (req, res) => {
             if (data.role === 'admin') totalAdmins++;
         });
 
+        // Count distinct users who have at least one enrollment
+        const activeUserIds = new Set();
+        enrollmentsSnapshot.forEach(doc => {
+            const userId = doc.ref.parent.parent.id;
+            if (userId) activeUserIds.add(userId);
+        });
+
         const result = {
             totalUsers,
             totalStudents: totalUsers - totalAdmins,
             totalAdmins,
             totalCourses: coursesSnapshot.size,
-            totalEnrollments: enrollmentsSnapshot.size
+            totalEnrollments: enrollmentsSnapshot.size,
+            activeLearnersCount: activeUserIds.size
         };
         console.log('[ADMIN] /metrics result:', result);
         res.json(result);

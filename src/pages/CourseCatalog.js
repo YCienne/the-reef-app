@@ -2,12 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Filter, Search, Cpu, Brain, Code, Wifi, Factory } from 'lucide-react';
-import { FaClock, FaUser, FaStar, FaGraduationCap, FaHeart } from 'react-icons/fa';
+import { FaClock, FaUser, FaStar, FaGraduationCap, FaHeart, FaUsers } from 'react-icons/fa';
 
 const CourseCatalog = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [courses, setCourses] = useState([]);
+  const [enrollmentCounts, setEnrollmentCounts] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -37,7 +38,21 @@ const CourseCatalog = () => {
       }
     };
 
+    const fetchEnrollmentCounts = async () => {
+      try {
+        const apiUrl = `${process.env.REACT_APP_API_URL || ''}/api/courses/enrollment-counts`;
+        const response = await fetch(apiUrl);
+        if (response.ok) {
+          const data = await response.json();
+          setEnrollmentCounts(data);
+        }
+      } catch (error) {
+        console.error('Error fetching enrollment counts:', error);
+      }
+    };
+
     fetchCourses();
+    fetchEnrollmentCounts();
   }, []);
 
   const categories = [
@@ -57,39 +72,40 @@ const CourseCatalog = () => {
   });
 
   return (
-    <div style={{ padding: '40px 0' }}>
+    <div className="catalog-page">
       <div className="container">
         {/* Header */}
-        <div style={{ marginBottom: '40px' }}>
-          <h1 style={{ fontSize: '36px', color: 'var(--primary)', marginBottom: '10px' }}>Course Catalog</h1>
-          <p style={{ color: 'var(--text-light)', fontSize: '18px' }}>
+        <div className="catalog-heading">
+          <h1 className="catalog-title">Programmes</h1>
+          <p className="catalog-subtitle">
             Discover cutting-edge AI and robotics courses tailored for African innovation
           </p>
         </div>
 
         {/* Filters and Search */}
-        <div className="glass-card" style={{ padding: '25px', marginBottom: '30px' }}>
-          <div style={{ display: 'flex', gap: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <Filter size={20} />
-              <span style={{ fontWeight: '600' }}>Filter by:</span>
+        <div className="glass-card catalog-filters">
+          <div className="filter-row">
+            <div className="filter-label">
+              <Filter size={18} />
+              <span>Filter by:</span>
             </div>
 
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            {/* Horizontally scrollable category pills */}
+            <div className="category-scroll">
               {categories.map(category => (
                 <button
                   key={category.id}
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`btn ${selectedCategory === category.id ? 'btn-primary' : 'btn-secondary'}`}
-                  style={{ padding: '8px 16px' }}
+                  className={`btn category-pill ${selectedCategory === category.id ? 'btn-primary' : 'btn-secondary'}`}
                 >
-                  <category.icon size={16} />
-                  {category.name}
+                  <category.icon size={14} />
+                  <span>{category.name}</span>
                 </button>
               ))}
             </div>
 
-            <div className="search-bar" style={{ marginLeft: 'auto' }}>
+            {/* Desktop-only search inside filter row */}
+            <div className="search-bar catalog-search-desktop">
               <Search size={18} className="icon" />
               <input
                 type="text"
@@ -99,111 +115,115 @@ const CourseCatalog = () => {
               />
             </div>
           </div>
+
+          {/* Mobile search bar (full-width row below) */}
+          <div className="catalog-search-mobile">
+            <Search size={16} className="icon" />
+            <input
+              type="text"
+              placeholder="Search courses..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
         </div>
 
         {/* Course Grid */}
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '40px' }}>Loading courses...</div>
+          <div className="catalog-loading">
+            <div className="catalog-loading-spinner" />
+            <p>Loading courses...</p>
+          </div>
         ) : (
-          <div style={{ display: 'grid', gap: '30px' }}>
-            {filteredCourses.map(course => (
-              <div key={course._id || course.id} className="glass-card" style={{ padding: '0', overflow: 'hidden', display: 'flex' }}>
-                {/* Course Image */}
-                <div style={{
-                  width: '250px',
-                  flexShrink: 0,
-                  backgroundImage: `url(${course.image})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  backgroundRepeat: 'no-repeat',
-                  position: 'relative'
-                }}>
-                  {/* Fallback if image doesn't load */}
-                  <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    background: 'linear-gradient(135deg, var(--primary-light) 0%, var(--accent) 100%)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'white',
-                    fontSize: '14px',
-                    opacity: 0,
-                    transition: 'opacity 0.3s ease'
-                  }} className="image-fallback">
-                    Course Image
-                  </div>
-                </div>
-
-                <div style={{ padding: '25px', flex: 1 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '15px' }}>
-                    <div style={{ flex: 1 }}>
-                      <span style={{ display: 'inline-block', padding: '4px 12px', background: 'rgba(26, 82, 118, 0.1)', color: 'var(--primary)', borderRadius: '50px', fontSize: '12px', fontWeight: '600', marginBottom: '10px' }}>
-                        {categories.find(cat => cat.id === course.category)?.name || course.category}
-                      </span>
-                      <h3 style={{ fontSize: '20px', marginBottom: '8px', color: 'var(--primary)' }}>{course.title}</h3>
-                      <p style={{ color: 'var(--text-light)', lineHeight: '1.5', marginBottom: '15px' }}>{course.description}</p>
-                    </div>
-
-                    <div style={{ textAlign: 'right', minWidth: '120px' }}>
-                      <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--primary)', marginBottom: '5px' }}>
-                        Ghc{course.price}
-                      </div>
-                      {course.originalPrice && (
-                        <div style={{ fontSize: '14px', color: 'var(--text-light)', textDecoration: 'line-through' }}>
-                          Ghc{course.originalPrice}
-                        </div>
-                      )}
-                      {course.originalPrice && (
-                        <div style={{ background: 'var(--accent)', color: 'white', padding: '2px 8px', borderRadius: '50px', fontSize: '12px', fontWeight: '600', marginTop: '5px' }}>
-                          {Math.round((1 - course.price / course.originalPrice) * 100)}% OFF
-                        </div>
-                      )}
-                    </div>
+          <div className="course-list">
+            {filteredCourses.map(course => {
+              const courseId = course._id || course.id;
+              const learnerCount = enrollmentCounts[courseId] || 0;
+              return (
+                <div key={courseId} className="glass-card course-card-item">
+                  {/* Course Image */}
+                  <div
+                    className="course-card-image"
+                    style={{
+                      backgroundImage: `url(${course.image})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      backgroundRepeat: 'no-repeat',
+                    }}
+                  >
+                    {/* Category badge overlay on image */}
+                    <span className="course-image-badge">
+                      {categories.find(cat => cat.id === course.category)?.name || course.category}
+                    </span>
                   </div>
 
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ display: 'flex', gap: '20px', color: 'var(--text-light)', fontSize: '14px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                        <FaClock size={14} />
-                        <span>{course.modules?.reduce((acc, mod) => acc + mod.lessons.length, 0) || 0} Lessons</span>
+                  {/* Course Content */}
+                  <div className="course-card-body">
+                    {/* Title row + price */}
+                    <div className="course-card-top">
+                      <div className="course-card-meta">
+                        <span className="learners-badge">
+                          <FaUsers size={10} />
+                          {learnerCount} {learnerCount === 1 ? 'learner' : 'learners'} enrolled
+                        </span>
+                        <h3 className="course-card-title">{course.title}</h3>
+                        <p className="course-card-desc">{course.description}</p>
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                        <FaUser size={14} />
-                        <span>{course.level}</span>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                        <FaStar size={14} />
-                        <span>{course.rating || 0} ({course.numStudents || 0} students)</span>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                        <FaGraduationCap size={14} />
-                        <span>{course.instructor}</span>
+
+                      <div className="course-card-price">
+                        <div className="price-main">Ghc{course.price}</div>
+                        {course.originalPrice && (
+                          <div className="price-original">Ghc{course.originalPrice}</div>
+                        )}
+                        {course.originalPrice && (
+                          <div className="price-badge">
+                            {Math.round((1 - course.price / course.originalPrice) * 100)}% OFF
+                          </div>
+                        )}
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                      <button className="btn btn-secondary" style={{ padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                        <FaHeart size={14} />
-                      </button>
-                      <Link to={`/course/${course._id || course.id}`} className="btn btn-primary" style={{ padding: '8px 20px' }}>
-                        View Course
-                      </Link>
+                    {/* Stats + Actions row */}
+                    <div className="course-card-footer">
+                      <div className="course-stats">
+                        <span className="course-stat">
+                          <FaClock size={12} />
+                          {course.modules?.reduce((acc, mod) => acc + mod.lessons.length, 0) || 0} Lessons
+                        </span>
+                        <span className="course-stat">
+                          <FaUser size={12} />
+                          {course.level}
+                        </span>
+                        <span className="course-stat">
+                          <FaStar size={12} />
+                          {course.rating || 0}
+                        </span>
+                        <span className="course-stat course-stat-instructor">
+                          <FaGraduationCap size={12} />
+                          {course.instructor}
+                        </span>
+                      </div>
+
+                      <div className="course-card-actions">
+                        <button className="btn btn-secondary icon-only-btn" aria-label="Save course">
+                          <FaHeart size={14} />
+                        </button>
+                        <Link to={`/course/${courseId}`} className="btn btn-primary view-course-btn">
+                          View Course
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
         {!loading && filteredCourses.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-light)' }}>
-            <Search size={48} style={{ marginBottom: '20px', opacity: 0.5 }} />
-            <h3 style={{ marginBottom: '10px' }}>No courses found</h3>
+          <div className="catalog-empty">
+            <Search size={48} style={{ marginBottom: '20px', opacity: 0.4 }} />
+            <h3>No courses found</h3>
             <p>Try adjusting your search or filter criteria</p>
           </div>
         )}
