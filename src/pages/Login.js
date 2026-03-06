@@ -22,8 +22,29 @@ const Login = () => {
         try {
             setError('');
             setLoading(true);
-            await login(email, password);
-            navigate(from === '/' ? '/dashboard' : from, { replace: true });
+            const credential = await login(email, password);
+            const uid = credential.user.uid;
+
+            // If user was going somewhere specific, honour that
+            if (from !== '/') {
+                navigate(from, { replace: true });
+                return;
+            }
+
+            // Check enrollments to decide where to send them
+            try {
+                const apiUrl = process.env.REACT_APP_API_URL || '';
+                const res = await fetch(`${apiUrl}/api/users/dashboard/${uid}`);
+                const enrollments = await res.json();
+                if (Array.isArray(enrollments) && enrollments.length > 0) {
+                    navigate('/dashboard', { replace: true });
+                } else {
+                    navigate('/', { replace: true });
+                }
+            } catch {
+                // Fallback to dashboard if enrollment check fails
+                navigate('/dashboard', { replace: true });
+            }
         } catch (err) {
             console.error("Login Error:", err);
             setError(`Failed to sign in: ${err.message} (${err.code})`);

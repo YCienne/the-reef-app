@@ -215,12 +215,12 @@ const CourseContent = () => {
   return (
     <div style={{ padding: '30px 0' }}>
       <div className="container">
-        <div style={{ display: 'flex', gap: '30px', flexDirection: 'row' }}>
+        <div className="course-content-layout">
           {/* Main Content */}
           <div style={{ flex: 1 }}>
             {/* Video Player */}
             <div className="glass-card" style={{ marginBottom: '20px', overflow: 'hidden', position: 'relative' }}>
-              <div style={{ width: '100%', height: '500px', background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+              <div className="course-player-container">
                 {currentLesson ? (
                   <>
                     {/* Content Rendering based on Type */}
@@ -381,7 +381,7 @@ const CourseContent = () => {
           </div>
 
           {/* Sidebar */}
-          <div style={{ width: '350px', minWidth: '300px' }}>
+          <div className="layout-sidebar">
             {/* Course Navigation */}
             <div className="glass-card" style={{ padding: '20px', marginBottom: '20px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>

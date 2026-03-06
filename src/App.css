@@ -354,14 +354,22 @@ footer {
 }
 
 @media (min-width: 769px) {
+
   .mobile-header,
-  .learning-header { display: none !important; }
+  .learning-header {
+    display: none !important;
+  }
 }
 
 @media (max-width: 768px) {
-  .desktop-header { display: none !important; }
+  .desktop-header {
+    display: none !important;
+  }
+
   .mobile-header,
-  .learning-header { display: block; }
+  .learning-header {
+    display: block;
+  }
 }
 
 /* ============================================
@@ -1191,4 +1199,46 @@ footer {
   opacity: 0.8;
   transform: translateX(-3px);
   transition: all 0.3s ease;
+}
+
+/* Responsive Course Layout */
+.course-content-layout {
+  display: flex;
+  gap: 30px;
+  flex-direction: row;
+}
+
+.layout-sidebar {
+  width: 350px;
+  min-width: 300px;
+}
+
+.course-player-container {
+  width: 100%;
+  position: relative;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 16/9;
+  max-height: 80vh;
+  overflow: hidden;
+}
+
+@media (max-width: 992px) {
+  .course-content-layout {
+    flex-direction: column;
+  }
+
+  .layout-sidebar {
+    width: 100%;
+    min-width: unset;
+  }
+}
+
+@media (max-width: 768px) {
+  .course-player-container {
+    aspect-ratio: 4/3;
+    max-height: 60vh;
+  }
 }
