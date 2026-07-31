@@ -17,7 +17,8 @@ const getQuiz = async (req, res) => {
 
         if (snapshot.empty) {
             // Fallback for development/demo purposes if no quiz exists
-            // This allows the UI to show a demo quiz without manual database seeding every time
+            // This allows the UI to show a demo quiz without manual database seeding every time.
+            // correctIndex/explanation are intentionally omitted from the response below.
             return res.json({
                 success: true,
                 data: {
@@ -29,23 +30,17 @@ const getQuiz = async (req, res) => {
                         {
                             id: 1,
                             text: "What is the primary benefit of Neural Networks in this context?",
-                            options: ["They are cheaper", "They can learn from data", "They use less power", "They are easier to code"],
-                            correctIndex: 1,
-                            explanation: "Neural networks are powerful because they can infer patterns from data."
+                            options: ["They are cheaper", "They can learn from data", "They use less power", "They are easier to code"]
                         },
                         {
                             id: 2,
                             text: "Which Python library is commonly used for Neural Networks?",
-                            options: ["React", "TensorFlow", "Pandas", "Express"],
-                            correctIndex: 1,
-                            explanation: "TensorFlow and PyTorch are the leading libraries for deep learning."
+                            options: ["React", "TensorFlow", "Pandas", "Express"]
                         },
                         {
                             id: 3,
                             text: "Who is the 'Godfather of AI'?",
-                            options: ["Geoffrey Hinton", "Elon Musk", "Alan Turing", "Sam Altman"],
-                            correctIndex: 0,
-                            explanation: "Hinton, along with Bengio and LeCun, is often referred to as a Godfather of AI."
+                            options: ["Geoffrey Hinton", "Elon Musk", "Alan Turing", "Sam Altman"]
                         }
                     ]
                 }
@@ -55,14 +50,15 @@ const getQuiz = async (req, res) => {
         const quizDoc = snapshot.docs[0];
         const quizData = quizDoc.data();
 
-        // Optional: Remove correctIndex if we want to prevent cheating via API inspection
-        // For now, sending it to let frontend handle immediate feedback or removing it for server-side grading
-        // const { questions, ...meta } = quizData;
-        // const sanitizedQuestions = questions.map(({ correctIndex, ...q }) => q);
+        // Strip correctIndex/explanation so answers can't be read from the
+        // network response before (or after) attempting the quiz.
+        const sanitizedQuestions = (quizData.questions || []).map(
+            ({ correctIndex, explanation, ...q }) => q
+        );
 
         res.json({
             success: true,
-            data: { id: quizDoc.id, ...quizData }
+            data: { id: quizDoc.id, ...quizData, questions: sanitizedQuestions }
         });
 
     } catch (error) {
@@ -112,7 +108,7 @@ const submitQuiz = async (req, res) => {
             results.push({
                 questionId: q.id,
                 correct: isCorrect,
-                correctIndex: q.correctIndex, // Send back correct answer for review
+                // correctIndex intentionally omitted - don't reveal the answer key
                 userIndex: userAns
             });
         });

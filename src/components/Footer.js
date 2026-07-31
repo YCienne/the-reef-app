@@ -32,18 +32,18 @@ const Footer = () => {
               Empowering Africa's technological future through AI and robotics education.
             </p>
             <div className="social-links">
-              <a href="#" className="social-link">
+              <button type="button" className="social-link">
                 <Twitter size={18} />
-              </a>
-              <a href="#" className="social-link">
+              </button>
+              <button type="button" className="social-link">
                 <Linkedin size={18} />
-              </a>
-              <a href="#" className="social-link">
+              </button>
+              <button type="button" className="social-link">
                 <Youtube size={18} />
-              </a>
-              <a href="#" className="social-link">
+              </button>
+              <button type="button" className="social-link">
                 <Facebook size={18} />
-              </a>
+              </button>
             </div>
           </div>
           
@@ -51,31 +51,31 @@ const Footer = () => {
             <h3>Programs</h3>
             <ul className="footer-links">
               <li><Link to="/courses">AI Foundations</Link></li>
-              <li><a href="#">Robotics Engineering</a></li>
-              <li><a href="#">Machine Learning</a></li>
-              <li><a href="#">Computer Vision</a></li>
-              <li><a href="#">Industrial Automation</a></li>
+              <li><button type="button" className="footer-link-btn">Robotics Engineering</button></li>
+              <li><button type="button" className="footer-link-btn">Machine Learning</button></li>
+              <li><button type="button" className="footer-link-btn">Computer Vision</button></li>
+              <li><button type="button" className="footer-link-btn">Industrial Automation</button></li>
             </ul>
           </div>
           
           <div className="footer-column">
             <h3>Resources</h3>
             <ul className="footer-links">
-              <li><a href="#">Case Studies</a></li>
-              <li><a href="#">Learning Paths</a></li>
-              <li><a href="#">Community Forum</a></li>
-              <li><a href="#">Career Center</a></li>
+              <li><button type="button" className="footer-link-btn">Case Studies</button></li>
+              <li><button type="button" className="footer-link-btn">Learning Paths</button></li>
+              <li><button type="button" className="footer-link-btn">Community Forum</button></li>
+              <li><button type="button" className="footer-link-btn">Career Center</button></li>
             </ul>
           </div>
           
           <div className="footer-column">
             <h3>Company</h3>
             <ul className="footer-links">
-              <li><a href="#">About Us</a></li>
-              <li><a href="#">Our Mission</a></li>
-              <li><a href="#">African Impact</a></li>
-              <li><a href="#">Partners</a></li>
-              <li><a href="#">Contact</a></li>
+              <li><button type="button" className="footer-link-btn">About Us</button></li>
+              <li><button type="button" className="footer-link-btn">Our Mission</button></li>
+              <li><button type="button" className="footer-link-btn">African Impact</button></li>
+              <li><button type="button" className="footer-link-btn">Partners</button></li>
+              <li><button type="button" className="footer-link-btn">Contact</button></li>
             </ul>
           </div>
         </div>

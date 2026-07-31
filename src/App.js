@@ -12,6 +12,7 @@ import Quiz from './pages/Quiz';
 import AdminUpload from './admin/AdminUpload';
 import AdminEditCourse from './admin/AdminEditCourse';
 import ChatWidget from './components/ChatWidget';
+import ReadAloud from './components/ReadAloud';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import DashboardRouter from './pages/DashboardRouter';
@@ -45,11 +46,9 @@ function MainApp() {
               <DashboardRouter />
             </PrivateRoute>
           } />
-          <Route path="/learn/:courseId/:lessonId" element={
-            <PrivateRoute>
-              <CourseContent />
-            </PrivateRoute>
-          } />
+          {/* Public: the first lesson is open as a preview. CourseContent itself
+              gates lessons beyond the first behind a sign-in prompt. */}
+          <Route path="/learn/:courseId/:lessonId" element={<CourseContent />} />
           <Route path="/quiz/:courseId/:moduleId" element={
             <PrivateRoute>
               <Quiz />
@@ -68,6 +67,7 @@ function MainApp() {
         </Routes>
       </main>
       <ChatWidget />
+      <ReadAloud />
       {!shouldHideFooter && <Footer />}
     </div>
   );

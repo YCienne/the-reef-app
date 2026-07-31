@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { Play, BookOpen, Clock, Award, ChevronRight } from 'lucide-react';
+import { Play, BookOpen, Award } from 'lucide-react';
 
 const Dashboard = () => {
     const { currentUser } = useAuth();

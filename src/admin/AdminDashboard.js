@@ -77,7 +77,7 @@ const AdminDashboard = () => {
         };
 
         fetchAdminData();
-    }, []);
+    }, [currentUser]);
 
     const handleDeleteCourse = async (courseId) => {
         if (!window.confirm("Are you sure you want to delete this course? This action cannot be undone.")) return;

@@ -25,3 +25,4 @@ yarn-error.log*
 
 # Service account keys - never commit these
 functions/futuremindVB.json
+*firebase-adminsdk*.json

@@ -1,7 +1,7 @@
 // src/pages/Quiz.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { CheckCircle, XCircle, ChevronLeft, ChevronRight, RefreshCw, BookOpen, Award } from 'lucide-react';
+import { XCircle, ChevronLeft, ChevronRight, RefreshCw, BookOpen, Award } from 'lucide-react';
 
 const Quiz = () => {
   const { courseId, moduleId } = useParams();
@@ -15,11 +15,7 @@ const Quiz = () => {
   const [submitted, setSubmitted] = useState(false);
   const [results, setResults] = useState(null);
 
-  useEffect(() => {
-    fetchQuiz();
-  }, [courseId, moduleId]);
-
-  const fetchQuiz = async () => {
+  const fetchQuiz = useCallback(async () => {
     try {
       setLoading(true);
       // In production, use your actual API URL
@@ -41,7 +37,11 @@ const Quiz = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [courseId, moduleId]);
+
+  useEffect(() => {
+    fetchQuiz();
+  }, [fetchQuiz]);
 
   const handleOptionSelect = (optionIndex) => {
     if (submitted) return;

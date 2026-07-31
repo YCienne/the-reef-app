@@ -55,7 +55,7 @@ const CourseCatalog = () => {
     fetchEnrollmentCounts();
   }, []);
 
-  const categories = [
+  const allCategories = [
     { id: 'all', name: 'All Courses', icon: Cpu },
     { id: 'ai', name: 'Artificial Intelligence', icon: Brain },
     { id: 'robotics', name: 'Robotics', icon: Cpu },
@@ -63,6 +63,11 @@ const CourseCatalog = () => {
     { id: 'iot', name: 'Internet of Things', icon: Wifi },
     { id: 'automation', name: 'Industrial Automation', icon: Factory }
   ];
+
+  // Only show filters that have at least one matching course (besides "All")
+  const categories = allCategories.filter(
+    category => category.id === 'all' || courses.some(c => c.category === category.id)
+  );
 
   const filteredCourses = courses.filter(course => {
     const matchesCategory = selectedCategory === 'all' || course.category === selectedCategory;

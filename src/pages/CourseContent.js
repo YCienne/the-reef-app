@@ -1,7 +1,7 @@
 // src/pages/CourseContent.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Play, Brain, FileText, Download, MessageCircle, Check, ChevronDown, ChevronUp, AlertCircle, XCircle } from 'lucide-react';
+import { Play, Brain, FileText, Check, ChevronDown, ChevronUp, AlertCircle, XCircle, Lock } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 
@@ -14,13 +14,12 @@ const CourseContent = () => {
   const [error, setError] = useState(null);
 
 
-  const [activeTab, setActiveTab] = useState('notes');
   const [aiExplanation, setAiExplanation] = useState('');
   const [isLoadingAI, setIsLoadingAI] = useState(false);
   const [expandedModules, setExpandedModules] = useState([]);
 
   const { currentUser } = useAuth(); // Assuming useAuth is imported at top
-  const [enrollment, setEnrollment] = useState(null);
+  const [, setEnrollment] = useState(null);
   const [maxTimeWatched, setMaxTimeWatched] = useState(0);
   const [showNextOverlay, setShowNextOverlay] = useState(false);
   const [completedLessons, setCompletedLessons] = useState([]);
@@ -212,12 +211,38 @@ const CourseContent = () => {
     </div>
   );
 
+  // Let visitors preview the first lesson without an account; everything
+  // beyond that requires signing in.
+  const lessonIndexNum = parseInt(lessonId, 10);
+  const isPreviewLesson = isNaN(lessonIndexNum) || lessonIndexNum === 1;
+  const requiresLogin = !currentUser && !isPreviewLesson;
+
   return (
     <div style={{ padding: '30px 0' }}>
       <div className="container">
         <div className="course-content-layout">
           {/* Main Content */}
           <div style={{ flex: 1 }}>
+          {requiresLogin ? (
+            <div className="glass-card" style={{ padding: '60px 40px', textAlign: 'center' }}>
+              <Lock size={48} style={{ opacity: 0.5, margin: '0 auto 20px' }} />
+              <h2 style={{ marginBottom: '10px' }}>Sign in to keep learning</h2>
+              <p style={{ color: 'var(--text-light)', marginBottom: '25px', maxWidth: '480px', margin: '0 auto 25px' }}>
+                You've previewed the first lesson for free. Create an account or sign in to unlock the rest of "{course.title}".
+              </p>
+              <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
+                <Link
+                  to="/login"
+                  state={{ from: { pathname: `/learn/${courseId}/${lessonId}` } }}
+                  className="btn btn-primary"
+                >
+                  Login
+                </Link>
+                <Link to="/signup" className="btn btn-secondary">Sign Up</Link>
+              </div>
+            </div>
+          ) : (
+            <>
             {/* Video Player */}
             <div className="glass-card" style={{ marginBottom: '20px', overflow: 'hidden', position: 'relative' }}>
               <div className="course-player-container">
@@ -375,9 +400,11 @@ const CourseContent = () => {
                 <p>{course.description}</p>
               </div>
 
-              {/* Note: Tabs removed for simplicity as backend doesn't store notes/transcripts yet. 
+              {/* Note: Tabs removed for simplicity as backend doesn't store notes/transcripts yet.
                   Can be re-added when those fields exist in the data model. */}
             </div>
+            </>
+          )}
           </div>
 
           {/* Sidebar */}
